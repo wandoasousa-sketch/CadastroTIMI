@@ -25,7 +25,8 @@
     <div id="tela-formulario">
         <h2>Preencha para participar</h2>
         <form id="meuFormulario">
-            <input type="text" id="nome" placeholder="Nome Completo" required>
+            <input type="text" id="nome" placeholder="Primeiro nome" required>
+            <input type="text" id="sobrenome" placeholder="Último sobrenome" required>
             <input type="number" id="idade" placeholder="Idade (18 anos ou mais)" min="18" max="120" required>
             <input type="text" id="profissao" placeholder="Profissão" required>
             <input type="tel" id="telefone" placeholder="Telefone / WhatsApp" required>
@@ -125,7 +126,9 @@
 
         // Monta os dados para enviar
         const formData = new URLSearchParams();
-        formData.append('nome', document.getElementById('nome').value);
+        // Junta primeiro nome + último sobrenome numa coluna só da planilha
+        const nomeCompleto = document.getElementById('nome').value.trim() + " " + document.getElementById('sobrenome').value.trim();
+        formData.append('nome', nomeCompleto);
         formData.append('idade', idade);
         formData.append('profissao', document.getElementById('profissao').value);
         formData.append('telefone', document.getElementById('telefone').value);
