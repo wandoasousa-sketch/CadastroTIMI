@@ -14,6 +14,8 @@
         .hidden { display: none; }
         .resultado { background: #e2f0d9; border: 2px dashed #28a745; padding: 20px; border-radius: 5px; margin-top: 20px; }
         .btn-premio { display: inline-block; background: #007bff; color: white; padding: 12px 20px; text-decoration: none; border-radius: 5px; font-weight: bold; margin-top: 15px; }
+        button:disabled { background-color: #999; cursor: wait; }
+        .aviso { color: #c0392b; background: #fdecea; border-radius: 5px; padding: 10px; margin-top: 10px; font-size: 14px; }
     </style>
 </head>
 <body>
@@ -24,11 +26,12 @@
         <h2>Preencha para participar</h2>
         <form id="meuFormulario">
             <input type="text" id="nome" placeholder="Nome Completo" required>
-            <input type="number" id="idade" placeholder="Idade" required>
+            <input type="number" id="idade" placeholder="Idade (18 anos ou mais)" min="18" max="120" required>
             <input type="text" id="profissao" placeholder="Profissão" required>
             <input type="tel" id="telefone" placeholder="Telefone / WhatsApp" required>
-            <button type="submit">Enviar e Revelar Link</button>
+            <button type="submit" id="btn-enviar">Enviar e Revelar Link</button>
         </form>
+        <div id="aviso" class="aviso hidden"></div>
     </div>
 
     <!-- TELA 2: SUCESSO E LINK -->
@@ -100,40 +103,77 @@
     document.getElementById('meuFormulario').addEventListener('submit', function(e) {
         e.preventDefault();
 
-        // Pega o link da fila seguindo a regra das 3 vezes
-        const linkParaBotao = obterProximoLink();
-        document.getElementById('link-final').href = linkParaBotao;
+        const aviso = document.getElementById('aviso');
+        const botao = document.getElementById('btn-enviar');
+        aviso.classList.add('hidden');
 
-        // Extrai o nome do membro de dentro do link escolhido
-        // CORREÇÃO: o [1] pega só a parte depois do "?"
-        const urlParams = new URLSearchParams(linkParaBotao.split('?')[1]);
+        // Confere a idade antes de enviar (o script também confere)
+        const idade = parseInt(document.getElementById('idade').value, 10);
+        if (isNaN(idade) || idade < 18) {
+            mostrarAviso("É preciso ter 18 anos ou mais para participar.");
+            return;
+        }
+
+        // Vê qual link é o próximo da fila (só avança a fila se o cadastro for aceito)
+        let indexAtual = parseInt(localStorage.getItem('fila_index')) || 0;
+        if (indexAtual >= listaLinks.length) { indexAtual = 0; }
+        const linkDaVez = listaLinks[indexAtual];
+
+        // Extrai o nome do membro de dentro do link
+        const urlParams = new URLSearchParams(linkDaVez.split('?')[1]);
         const membroEscolhido = urlParams.get('membro') || "Não especificado";
 
         // Monta os dados para enviar
         const formData = new URLSearchParams();
         formData.append('nome', document.getElementById('nome').value);
-        formData.append('idade', document.getElementById('idade').value);
+        formData.append('idade', idade);
         formData.append('profissao', document.getElementById('profissao').value);
         formData.append('telefone', document.getElementById('telefone').value);
         formData.append('membro', membroEscolhido);
 
-        // Envia para o Google Sheets
+        botao.disabled = true;
+        botao.innerText = "Enviando...";
+
+        // Envia para o Google Sheets e espera a resposta
         fetch(urlAPI, {
             method: 'POST',
-            mode: 'no-cors',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             body: formData.toString()
+        })
+        .then(function(res) { return res.json(); })
+        .then(function(resposta) {
+            if (resposta.status !== "ok") {
+                mostrarAviso(resposta.mensagem || "Não foi possível concluir o cadastro.");
+                return;
+            }
+
+            // Cadastro aceito: agora sim avança a fila e mostra o link
+            document.getElementById('link-final').href = obterProximoLink();
+
+            // Mostra o mesmo número que ficou na planilha
+            document.getElementById('num-sorteio').innerText = "#" + resposta.numero;
+
+            // Troca de tela
+            document.getElementById('tela-formulario').classList.add('hidden');
+            document.getElementById('tela-resultado').classList.remove('hidden');
+        })
+        .catch(function() {
+            mostrarAviso("Erro de conexão. Verifique a internet e tente novamente.");
+        })
+        .finally(function() {
+            botao.disabled = false;
+            botao.innerText = "Enviar e Revelar Link";
         });
 
-        // Gera o número visual do sorteio
-        const numeroSorteio = Math.floor(1001 + Math.random() * 9000);
-        document.getElementById('num-sorteio').innerText = "#" + numeroSorteio;
-
-        // Troca de tela
-        document.getElementById('tela-formulario').classList.add('hidden');
-        document.getElementById('tela-resultado').classList.remove('hidden');
+        function mostrarAviso(texto) {
+            aviso.innerText = texto;
+            aviso.classList.remove('hidden');
+        }
     });
 </script>
+
+</body>
+</html>
 
 </body>
 </html>
