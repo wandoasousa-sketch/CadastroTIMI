@@ -96,7 +96,7 @@
         return linkEscolhido;
     }
 
-    // 4. ENVIO DO FORMULÁRIO
+        // 4. ENVIO DO FORMULÁRIO
     document.getElementById('meuFormulario').addEventListener('submit', function(e) {
         e.preventDefault();
 
@@ -105,22 +105,23 @@
         document.getElementById('link-final').href = linkParaBotao;
 
         // Extrai o nome do membro de dentro do link escolhido
-        const urlParams = new URLSearchParams(linkParaBotao.split('?')[1]);
+        const urlParams = new URLSearchParams(linkParaBotao.split('?'));
         const membroEscolhido = urlParams.get('membro') || "Não especificado";
 
-        const dados = {
-            nome: document.getElementById('nome').value,
-            idade: document.getElementById('idade').value,
-            profissao: document.getElementById('profissao').value,
-            telefone: document.getElementById('telefone').value,
-            premio: membroEscolhido // <--- Envia o nome do membro (Wando, Raul, etc.) para a planilha
-        };
+        // Cria o formato de texto padrão que o Google adora receber
+        const formData = new URLSearchParams();
+        formData.append('nome', document.getElementById('nome').value);
+        formData.append('idade', document.getElementById('idade').value);
+        formData.append('profissao', document.getElementById('profissao').value);
+        formData.append('telefone', document.getElementById('telefone').value);
+        formData.append('premio', membroEscolhido);
 
-        // Envia para o Google Sheets
+        // Envia para o Google Sheets usando o método infalível 'no-cors'
         fetch(urlAPI, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(dados)
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: formData.toString()
         });
 
         // Gera o número visual do sorteio na hora
@@ -131,7 +132,3 @@
         document.getElementById('tela-formulario').classList.add('hidden');
         document.getElementById('tela-resultado').classList.remove('hidden');
     });
-</script>
-
-</body>
-</html>
