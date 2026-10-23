@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inscrição e Prémio</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f4f9; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .container { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 400px; text-align: center; }
+        h2 { color: #333; margin-bottom: 20px; }
+        input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; background-color: #28a745; color: white; border: none; border-radius: 5px; font-size: 16px; cursor: pointer; font-weight: bold; }
+        button:hover { background-color: #218838; }
+        .hidden { display: none; }
+        .resultado { background: #e2f0d9; border: 2px dashed #28a745; padding: 20px; border-radius: 5px; margin-top: 20px; }
+        .btn-premio { display: inline-block; background: #007bff; color: white; padding: 12px 20px; text-decoration: none; border-radius: 5px; font-weight: bold; margin-top: 15px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- TELA 1: FORMULÁRIO -->
+    <div id="tela-formulario">
+        <h2>Preencha para participar</h2>
+        <form id="meuFormulario">
+            <input type="text" id="nome" placeholder="Nome Completo" required>
+            <input type="number" id="idade" placeholder="Idade" required>
+            <input type="text" id="profissao" placeholder="Profissão" required>
+            <input type="tel" id="telefone" placeholder="Telefone / WhatsApp" required>
+            <button type="submit">Enviar e Revelar Link</button>
+        </form>
+    </div>
+
+    <!-- TELA 2: SUCESSO E LINK -->
+    <div id="tela-resultado" class="hidden">
+        <h2>Inscrição Confirmada! 🎉</h2>
+        <p>O seu número para o sorteio é:</p>
+        <h1 style="color: #28a745; margin: 5px 0;" id="num-sorteio">---</h1>
+        
+        <div class="resultado">
+            <p><strong>Seu Link Premiado está pronto!</strong><br>Clique no botão abaixo para entrar na plataforma final:</p>
+            <a href="#" id="link-final" class="btn-premio" target="_blank">Entrar na Plataforma</a>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 1. ADICIONE AQUI OS LINKS REAIS DA SUA PLATAFORMA FINAL (DENTRO DAS ASPAS)
+    const listaLinks = [
+        "https://plataforma.com",
+        "https://plataforma.com",
+        "https://plataforma.com"
+    ];
+
+    // 2. COLE AQUI O LINK LONGO QUE COPIOU DO GOOGLE SHEETS (APPS SCRIPT)
+    const urlAPI = "https://script.google.com/macros/s/AKfycbyiDDkD2INiXOM4YZIEBKSqHDyEjpQel2a3NYttdX51iDx-11FpDMlAgxxDLOnc9Iq-/exec"; 
+
+    // 3. FUNÇÃO QUE CONTROLA A FILA (SAIR 3 VEZES SEGUIDAS)
+    function obterProximoLink() {
+        let indexAtual = parseInt(localStorage.getItem('fila_index')) || 0;
+        let contagemAtual = parseInt(localStorage.getItem('fila_contagem')) || 0;
+
+        if (indexAtual >= listaLinks.length) { indexAtual = 0; contagemAtual = 0; }
+
+        const linkEscolhido = listaLinks[indexAtual];
+        contagemAtual++;
+
+        if (contagemAtual >= 3) {
+            indexAtual = (indexAtual + 1) % listaLinks.length;
+            contagemAtual = 0;
+        }
+
+        localStorage.setItem('fila_index', indexAtual);
+        localStorage.setItem('fila_contagem', contagemAtual);
+
+        return linkEscolhido;
+    </script>
+
+    // 4. ENVIO DO FORMULÁRIO
+    document.getElementById('meuFormulario').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const dados = {
+            nome: document.getElementById('nome').value,
+            idade: document.getElementById('idade').value,
+            profissao: document.getElementById('profissao').value,
+            telefone: document.getElementById('telefone').value
+        };
+
+        // Envia para o Google Sheets
+        fetch(urlAPI, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(dados)
+        });
+
+        // Gera o número visual do sorteio na hora
+        const numeroSorteio = Math.floor(1001 + Math.random() * 9000);
+        document.getElementById('num-sorteio').innerText = "#" + numeroSorteio;
+
+        // Pega o link da fila e aplica ao botão
+        const linkParaBotao = obterProximoLink();
+        document.getElementById('link-final').href = linkParaBotao;
+
+        // Troca de tela
+        document.getElementById('tela-formulario').classList.add('hidden');
+        document.getElementById('tela-resultado').classList.remove('hidden');
+    });
+</script>
+
+</body>
+</html>
