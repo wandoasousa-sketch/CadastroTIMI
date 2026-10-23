@@ -45,7 +45,7 @@
 </div>
 
 <script>
-    // 1. ADICIONE AQUI OS LINKS REAIS DA SUA PLATAFORMA FINAL (DENTRO DAS ASPAS)
+    // 1. LISTA DE LINKS COM OS MEMBROS
     const listaLinks = [
         "https://timivht.com/#/pages/login/registerView?code=djuoci&membro=Wando",
         "https://timivht.com/#/pages/login/registerView?code=dlc6vp&membro=Maúricio",
@@ -72,7 +72,7 @@
         "https://timivht.com/#/pages/login/registerView?code=dqv47v&membro=Geneci"
     ];
 
-    // 2. COLE AQUI O LINK LONGO QUE COPIOU DO GOOGLE SHEETS (APPS SCRIPT)
+    // 2. URL DO GOOGLE SHEETS
     const urlAPI = "https://script.google.com/macros/s/AKfycbyiDDkD2INiXOM4YZIEBKSqHDyEjpQel2a3NYttdX51iDx-11FpDMlAgxxDLOnc9Iq-/exec"; 
 
     // 3. FUNÇÃO QUE CONTROLA A FILA (SAIR 3 VEZES SEGUIDAS)
@@ -94,7 +94,7 @@
         localStorage.setItem('fila_contagem', contagemAtual);
 
         return linkEscolhido;
-    </script>
+    }
 
     // 4. ENVIO DO FORMULÁRIO
     document.getElementById('meuFormulario').addEventListener('submit', function(e) {
@@ -104,16 +104,16 @@
         const linkParaBotao = obterProximoLink();
         document.getElementById('link-final').href = linkParaBotao;
 
-        // Extrai a informação do prémio que colocou à frente do link
-        const urlParams = new URLSearchParams(linkParaBotao.split('?'));
-        const premioEscolhido = urlParams.get('premio') || "Não especificado";
+        // Extrai o nome do membro de dentro do link escolhido
+        const urlParams = new URLSearchParams(linkParaBotao.split('?')[1]);
+        const membroEscolhido = urlParams.get('membro') || "Não especificado";
 
         const dados = {
             nome: document.getElementById('nome').value,
             idade: document.getElementById('idade').value,
             profissao: document.getElementById('profissao').value,
             telefone: document.getElementById('telefone').value,
-            premio: premioEscolhido // <--- Envia o prémio correto!
+            premio: membroEscolhido // <--- Envia o nome do membro (Wando, Raul, etc.) para a planilha
         };
 
         // Envia para o Google Sheets
