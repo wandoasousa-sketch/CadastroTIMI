@@ -36,7 +36,7 @@
         <h2>Inscrição Confirmada! 🎉</h2>
         <p>O seu número para o sorteio é:</p>
         <h1 style="color: #28a745; margin: 5px 0;" id="num-sorteio">---</h1>
-        
+
         <div class="resultado">
             <p><strong>Seu Link Premiado está pronto!</strong><br>Clique no botão abaixo para entrar na plataforma final:</p>
             <a href="#" id="link-final" class="btn-premio" target="_blank">Entrar na Plataforma</a>
@@ -73,7 +73,7 @@
     ];
 
     // 2. URL DO GOOGLE SHEETS
-    const urlAPI = "https://script.google.com/macros/s/AKfycbyIT0IjCFfkzrooa4aRgp3mfUQEgssA3vaGwxC0jNP70LZQ4V7tzD_TF5rh4_RpPnz0/exec"; 
+    const urlAPI = "https://script.google.com/macros/s/AKfycbyIT0IjCFfkzrooa4aRgp3mfUQEgssA3vaGwxC0jNP70LZQ4V7tzD_TF5rh4_RpPnz0/exec";
 
     // 3. FUNÇÃO QUE CONTROLA A FILA (SAIR 3 VEZES SEGUIDAS)
     function obterProximoLink() {
@@ -96,7 +96,7 @@
         return linkEscolhido;
     }
 
-        // 4. ENVIO DO FORMULÁRIO
+    // 4. ENVIO DO FORMULÁRIO
     document.getElementById('meuFormulario').addEventListener('submit', function(e) {
         e.preventDefault();
 
@@ -105,18 +105,19 @@
         document.getElementById('link-final').href = linkParaBotao;
 
         // Extrai o nome do membro de dentro do link escolhido
-        const urlParams = new URLSearchParams(linkParaBotao.split('?'));
+        // CORREÇÃO: o [1] pega só a parte depois do "?"
+        const urlParams = new URLSearchParams(linkParaBotao.split('?')[1]);
         const membroEscolhido = urlParams.get('membro') || "Não especificado";
 
-        // Cria o formato de texto padrão que o Google adora receber
+        // Monta os dados para enviar
         const formData = new URLSearchParams();
         formData.append('nome', document.getElementById('nome').value);
         formData.append('idade', document.getElementById('idade').value);
         formData.append('profissao', document.getElementById('profissao').value);
         formData.append('telefone', document.getElementById('telefone').value);
-        formData.append('premio', membroEscolhido);
+        formData.append('membro', membroEscolhido);
 
-        // Envia para o Google Sheets usando o método infalível 'no-cors'
+        // Envia para o Google Sheets
         fetch(urlAPI, {
             method: 'POST',
             mode: 'no-cors',
@@ -124,7 +125,7 @@
             body: formData.toString()
         });
 
-        // Gera o número visual do sorteio na hora
+        // Gera o número visual do sorteio
         const numeroSorteio = Math.floor(1001 + Math.random() * 9000);
         document.getElementById('num-sorteio').innerText = "#" + numeroSorteio;
 
@@ -132,3 +133,7 @@
         document.getElementById('tela-formulario').classList.add('hidden');
         document.getElementById('tela-resultado').classList.remove('hidden');
     });
+</script>
+
+</body>
+</html>
