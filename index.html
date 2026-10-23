@@ -5,17 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inscrição e Prémio</title>
     <style>
-        body { font-family: Arial, sans-serif; background-color: #f4f4f9; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        body { font-family: Arial, sans-serif; background-color: #f4f4f9; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 16px; box-sizing: border-box; }
         .container { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 400px; text-align: center; }
         h2 { color: #333; margin-bottom: 20px; }
         input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
         button { width: 100%; padding: 12px; background-color: #28a745; color: white; border: none; border-radius: 5px; font-size: 16px; cursor: pointer; font-weight: bold; }
         button:hover { background-color: #218838; }
+        button:disabled { background-color: #999; cursor: not-allowed; }
         .hidden { display: none; }
         .resultado { background: #e2f0d9; border: 2px dashed #28a745; padding: 20px; border-radius: 5px; margin-top: 20px; }
-        .btn-premio { display: inline-block; background: #007bff; color: white; padding: 12px 20px; text-decoration: none; border-radius: 5px; font-weight: bold; margin-top: 15px; }
-        button:disabled { background-color: #999; cursor: wait; }
+        .btn-premio { display: block; background: #007bff; color: white; padding: 14px 20px; text-decoration: none; border-radius: 5px; font-weight: bold; margin: 15px 0; }
         .aviso { color: #c0392b; background: #fdecea; border-radius: 5px; padding: 10px; margin-top: 10px; font-size: 14px; }
+        .passos { text-align: left; color: #333; line-height: 1.5; padding-left: 20px; }
+        .passos li { margin-bottom: 10px; }
+        .regra { font-size: 13px; color: #666; margin-top: 15px; }
+        .numero { color: #28a745; font-size: 48px; margin: 10px 0; }
     </style>
 </head>
 <body>
@@ -30,83 +34,101 @@
             <input type="number" id="idade" placeholder="Idade (18 anos ou mais)" min="18" max="120" required>
             <input type="text" id="profissao" placeholder="Profissão" required>
             <input type="tel" id="telefone" placeholder="Telefone / WhatsApp" required>
-            <button type="submit" id="btn-enviar">Enviar e Revelar Link</button>
+            <button type="submit" id="btn-enviar">Continuar</button>
         </form>
         <div id="aviso" class="aviso hidden"></div>
+        <p class="regra">Só concorre ao sorteio quem concluir o cadastro na plataforma.</p>
     </div>
 
-    <!-- TELA 2: SUCESSO E LINK -->
-    <div id="tela-resultado" class="hidden">
-        <h2>Inscrição Confirmada! 🎉</h2>
-        <p>O seu número para o sorteio é:</p>
-        <h1 style="color: #28a745; margin: 5px 0;" id="num-sorteio">---</h1>
+    <!-- TELA 2: LINK DA PLATAFORMA -->
+    <div id="tela-link" class="hidden">
+        <h2>Falta só um passo! 🚀</h2>
+        <ol class="passos">
+            <li>Toque no botão azul e faça o seu cadastro na plataforma usando <strong>este mesmo telefone</strong>: <strong id="tel-usado"></strong></li>
+            <li>Depois <strong>volte a esta página</strong> e toque em "Já concluí meu cadastro" para ver o seu número da sorte.</li>
+        </ol>
 
+        <a href="#" id="link-final" class="btn-premio" target="_blank" rel="noopener">Cadastrar na Plataforma</a>
+
+        <button type="button" id="btn-concluir" disabled>Já concluí meu cadastro</button>
+        <p class="regra" id="dica-concluir">Primeiro faça o cadastro pelo botão azul.</p>
+    </div>
+
+    <!-- TELA 3: NÚMERO DO SORTEIO -->
+    <div id="tela-numero" class="hidden">
+        <h2>Inscrição Confirmada! 🎉</h2>
+        <p>O seu número da sorte é:</p>
+        <h1 class="numero" id="num-sorteio">---</h1>
         <div class="resultado">
-            <p><strong>Seu Link Premiado está pronto!</strong><br>Clique no botão abaixo para entrar na plataforma final:</p>
-            <a href="#" id="link-final" class="btn-premio" target="_blank">Entrar na Plataforma</a>
+            <p><strong>Tire um print desta tela</strong> para guardar o seu número.</p>
         </div>
+        <p class="regra">O ganhador terá o cadastro na plataforma conferido. Se não for encontrado, um novo número será sorteado.</p>
     </div>
 </div>
 
 <script>
-    // 1. LISTA DE LINKS COM OS MEMBROS
-    const listaLinks = [
-        "https://timivht.com/#/pages/login/registerView?code=djuoci&membro=Wando",
-        "https://timivht.com/#/pages/login/registerView?code=dlc6vp&membro=Maúricio",
-        "https://timivht.com/#/pages/login/registerView?code=dka801&membro=Junior",
-        "https://timivht.com/#/pages/login/registerView?code=dsrxyt&membro=Raul",
-        "https://timivht.com/#/pages/login/registerView?code=drg990&membro=AnaPaula",
-        "https://timivht.com/#/pages/login/registerView?code=de3137&membro=Eli",
-        "https://timivht.com/#/pages/login/registerView?code=dk4hqe&membro=Fabio",
-        "https://timivht.com/#/pages/login/registerView?code=ds0ry7&membro=Mirian",
-        "https://timivht.com/#/pages/login/registerView?code=drb6p1&membro=Rodrigo",
-        "https://timivht.com/#/pages/login/registerView?code=dk12tm&membro=Victor",
-        "https://timivht.com/#/pages/login/registerView?code=d1oolz&membro=Leandro",
-        "https://timivht.com/#/pages/login/registerView?code=dig4rl&membro=Alex",
-        "https://timivht.com/#/pages/login/registerView?code=dk40ki&membro=Sabrina",
-        "https://timivht.com/#/pages/login/registerView?code=di0sv0&membro=Angela",
-        "https://timivht.com/#/pages/login/registerView?code=dlko68&membro=Larissa",
-        "https://timivht.com/#/pages/login/registerView?code=dy13nt&membro=Mickaella",
-        "https://timivht.com/#/pages/login/registerView?code=dz7i7k&membro=DeboraBrasil",
-        "https://timivht.com/#/pages/login/registerView?code=dtex1k&membro=Alessandra",
-        "https://timivht.com/#/pages/login/registerView?code=dkrtho&membro=Edmundo",
-        "https://timivht.com/#/pages/login/registerView?code=dpuft2&membro=Juliana",
-        "https://timivht.com/#/pages/login/registerView?code=d4c75b&membro=Paraiba",
-        "https://timivht.com/#/pages/login/registerView?code=dgxi19&membro=Debora",
-        "https://timivht.com/#/pages/login/registerView?code=dqv47v&membro=Geneci"
-    ];
-
-    // 2. URL DO GOOGLE SHEETS
+    // URL DO GOOGLE SHEETS
+    // (a lista de links e a fila ficam no script do Google)
     const urlAPI = "https://script.google.com/macros/s/AKfycbyIT0IjCFfkzrooa4aRgp3mfUQEgssA3vaGwxC0jNP70LZQ4V7tzD_TF5rh4_RpPnz0/exec";
 
-    // 3. FUNÇÃO QUE CONTROLA A FILA (SAIR 3 VEZES SEGUIDAS)
-    function obterProximoLink() {
-        let indexAtual = parseInt(localStorage.getItem('fila_index')) || 0;
-        let contagemAtual = parseInt(localStorage.getItem('fila_contagem')) || 0;
-
-        if (indexAtual >= listaLinks.length) { indexAtual = 0; contagemAtual = 0; }
-
-        const linkEscolhido = listaLinks[indexAtual];
-        contagemAtual++;
-
-        if (contagemAtual >= 3) {
-            indexAtual = (indexAtual + 1) % listaLinks.length;
-            contagemAtual = 0;
-        }
-
-        localStorage.setItem('fila_index', indexAtual);
-        localStorage.setItem('fila_contagem', contagemAtual);
-
-        return linkEscolhido;
+    // Guarda o andamento neste aparelho, para a pessoa não perder o link
+    // nem o número se fechar ou recarregar a página
+    // (também guarda na memória, caso o navegador bloqueie o armazenamento)
+    let estadoAtual = null;
+    function salvar(estado) {
+        estadoAtual = estado;
+        try { localStorage.setItem('cadastro', JSON.stringify(estado)); } catch (e) {}
+    }
+    function carregar() {
+        try {
+            const s = JSON.parse(localStorage.getItem('cadastro'));
+            if (s) return s;
+        } catch (e) {}
+        return estadoAtual;
     }
 
-    // 4. ENVIO DO FORMULÁRIO
+    function mostrarTela(id) {
+        ['tela-formulario', 'tela-link', 'tela-numero'].forEach(function(t) {
+            document.getElementById(t).classList.toggle('hidden', t !== id);
+        });
+    }
+
+    function liberarBotaoConcluir() {
+        document.getElementById('btn-concluir').disabled = false;
+        document.getElementById('dica-concluir').innerText = "Concluiu na plataforma? Toque acima.";
+    }
+
+    function abrirTelaLink(estado) {
+        document.getElementById('link-final').href = estado.link;
+        document.getElementById('tel-usado').innerText = estado.telefone;
+        if (estado.clicouLink) liberarBotaoConcluir();
+        mostrarTela('tela-link');
+    }
+
+    function abrirTelaNumero(estado) {
+        document.getElementById('num-sorteio').innerText = "#" + estado.numero;
+        mostrarTela('tela-numero');
+    }
+
+    // Ao abrir a página, continua de onde a pessoa parou
+    const salvo = carregar();
+    if (salvo && salvo.link) {
+        if (salvo.concluiu) abrirTelaNumero(salvo);
+        else abrirTelaLink(salvo);
+    }
+
+    // TELA 1: ENVIO DO FORMULÁRIO
     document.getElementById('meuFormulario').addEventListener('submit', function(e) {
         e.preventDefault();
 
         const aviso = document.getElementById('aviso');
         const botao = document.getElementById('btn-enviar');
         aviso.classList.add('hidden');
+
+        function mostrarAviso(texto) {
+            aviso.innerText = texto;
+            aviso.classList.remove('hidden');
+        }
 
         // Confere a idade antes de enviar (o script também confere)
         const idade = parseInt(document.getElementById('idade').value, 10);
@@ -115,29 +137,19 @@
             return;
         }
 
-        // Vê qual link é o próximo da fila (só avança a fila se o cadastro for aceito)
-        let indexAtual = parseInt(localStorage.getItem('fila_index')) || 0;
-        if (indexAtual >= listaLinks.length) { indexAtual = 0; }
-        const linkDaVez = listaLinks[indexAtual];
-
-        // Extrai o nome do membro de dentro do link
-        const urlParams = new URLSearchParams(linkDaVez.split('?')[1]);
-        const membroEscolhido = urlParams.get('membro') || "Não especificado";
-
-        // Monta os dados para enviar
-        const formData = new URLSearchParams();
         // Junta primeiro nome + último sobrenome numa coluna só da planilha
         const nomeCompleto = document.getElementById('nome').value.trim() + " " + document.getElementById('sobrenome').value.trim();
+        const telefone = document.getElementById('telefone').value.trim();
+
+        const formData = new URLSearchParams();
         formData.append('nome', nomeCompleto);
         formData.append('idade', idade);
         formData.append('profissao', document.getElementById('profissao').value);
-        formData.append('telefone', document.getElementById('telefone').value);
-        formData.append('membro', membroEscolhido);
+        formData.append('telefone', telefone);
 
         botao.disabled = true;
         botao.innerText = "Enviando...";
 
-        // Envia para o Google Sheets e espera a resposta
         fetch(urlAPI, {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -149,29 +161,40 @@
                 mostrarAviso(resposta.mensagem || "Não foi possível concluir o cadastro.");
                 return;
             }
-
-            // Cadastro aceito: agora sim avança a fila e mostra o link
-            document.getElementById('link-final').href = obterProximoLink();
-
-            // Mostra o mesmo número que ficou na planilha
-            document.getElementById('num-sorteio').innerText = "#" + resposta.numero;
-
-            // Troca de tela
-            document.getElementById('tela-formulario').classList.add('hidden');
-            document.getElementById('tela-resultado').classList.remove('hidden');
+            const estado = {
+                link: resposta.link,
+                numero: resposta.numero,
+                telefone: telefone,
+                clicouLink: false,
+                concluiu: false
+            };
+            salvar(estado);
+            abrirTelaLink(estado);
         })
         .catch(function() {
             mostrarAviso("Erro de conexão. Verifique a internet e tente novamente.");
         })
         .finally(function() {
             botao.disabled = false;
-            botao.innerText = "Enviar e Revelar Link";
+            botao.innerText = "Continuar";
         });
+    });
 
-        function mostrarAviso(texto) {
-            aviso.innerText = texto;
-            aviso.classList.remove('hidden');
-        }
+    // TELA 2: clicou no link da plataforma -> libera o botão "Já concluí"
+    document.getElementById('link-final').addEventListener('click', function() {
+        const estado = carregar() || {};
+        estado.clicouLink = true;
+        salvar(estado);
+        liberarBotaoConcluir();
+    });
+
+    // TELA 2: "Já concluí meu cadastro" -> mostra o número
+    document.getElementById('btn-concluir').addEventListener('click', function() {
+        const estado = carregar();
+        if (!estado) return;
+        estado.concluiu = true;
+        salvar(estado);
+        abrirTelaNumero(estado);
     });
 </script>
 
