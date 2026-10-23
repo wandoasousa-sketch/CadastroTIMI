@@ -47,9 +47,29 @@
 <script>
     // 1. ADICIONE AQUI OS LINKS REAIS DA SUA PLATAFORMA FINAL (DENTRO DAS ASPAS)
     const listaLinks = [
-        "https://plataforma.com",
-        "https://plataforma.com",
-        "https://plataforma.com"
+        "https://timivht.com/#/pages/login/registerView?code=djuoci&membro=Wando",
+        "https://timivht.com/#/pages/login/registerView?code=dlc6vp&membro=Maúricio",
+        "https://timivht.com/#/pages/login/registerView?code=dka801&membro=Junior",
+        "https://timivht.com/#/pages/login/registerView?code=dsrxyt&membro=Raul",
+        "https://timivht.com/#/pages/login/registerView?code=drg990&membro=AnaPaula",
+        "https://timivht.com/#/pages/login/registerView?code=de3137&membro=Eli",
+        "https://timivht.com/#/pages/login/registerView?code=dk4hqe&membro=Fabio",
+        "https://timivht.com/#/pages/login/registerView?code=ds0ry7&membro=Mirian",
+        "https://timivht.com/#/pages/login/registerView?code=drb6p1&membro=Rodrigo",
+        "https://timivht.com/#/pages/login/registerView?code=dk12tm&membro=Victor",
+        "https://timivht.com/#/pages/login/registerView?code=d1oolz&membro=Leandro",
+        "https://timivht.com/#/pages/login/registerView?code=dig4rl&membro=Alex",
+        "https://timivht.com/#/pages/login/registerView?code=dk40ki&membro=Sabrina",
+        "https://timivht.com/#/pages/login/registerView?code=di0sv0&membro=Angela",
+        "https://timivht.com/#/pages/login/registerView?code=dlko68&membro=Larissa",
+        "https://timivht.com/#/pages/login/registerView?code=dy13nt&membro=Mickaella",
+        "https://timivht.com/#/pages/login/registerView?code=dz7i7k&membro=DeboraBrasil",
+        "https://timivht.com/#/pages/login/registerView?code=dtex1k&membro=Alessandra",
+        "https://timivht.com/#/pages/login/registerView?code=dkrtho&membro=Edmundo",
+        "https://timivht.com/#/pages/login/registerView?code=dpuft2&membro=Juliana",
+        "https://timivht.com/#/pages/login/registerView?code=d4c75b&membro=Paraiba",
+        "https://timivht.com/#/pages/login/registerView?code=dgxi19&membro=Debora",
+        "https://timivht.com/#/pages/login/registerView?code=dqv47v&membro=Geneci"
     ];
 
     // 2. COLE AQUI O LINK LONGO QUE COPIOU DO GOOGLE SHEETS (APPS SCRIPT)
@@ -80,11 +100,20 @@
     document.getElementById('meuFormulario').addEventListener('submit', function(e) {
         e.preventDefault();
 
+        // Pega o link da fila seguindo a regra das 3 vezes
+        const linkParaBotao = obterProximoLink();
+        document.getElementById('link-final').href = linkParaBotao;
+
+        // Extrai a informação do prémio que colocou à frente do link
+        const urlParams = new URLSearchParams(linkParaBotao.split('?'));
+        const premioEscolhido = urlParams.get('premio') || "Não especificado";
+
         const dados = {
             nome: document.getElementById('nome').value,
             idade: document.getElementById('idade').value,
             profissao: document.getElementById('profissao').value,
-            telefone: document.getElementById('telefone').value
+            telefone: document.getElementById('telefone').value,
+            premio: premioEscolhido // <--- Envia o prémio correto!
         };
 
         // Envia para o Google Sheets
@@ -97,10 +126,6 @@
         // Gera o número visual do sorteio na hora
         const numeroSorteio = Math.floor(1001 + Math.random() * 9000);
         document.getElementById('num-sorteio').innerText = "#" + numeroSorteio;
-
-        // Pega o link da fila e aplica ao botão
-        const linkParaBotao = obterProximoLink();
-        document.getElementById('link-final').href = linkParaBotao;
 
         // Troca de tela
         document.getElementById('tela-formulario').classList.add('hidden');
